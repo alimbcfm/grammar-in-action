@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar in Action - Verb Helpers</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fef9d7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        .app-container {
+            width: 98vw;
+            height: 98vh;
+            background: #fffde7;
+            border-radius: 20px;
+            border: 4px solid #fff59d;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 2px 6px;
+            overflow: hidden;
+        }
+
+        /* 1. الشريط العلوي */
+        .top-bar {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 4px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #ffe082;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 2px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .num-circle {
+            background: #e53935;
+            color: white;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .title-text h2 {
+            margin: 0;
+            color: #d32f2f;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .title-text p {
+            margin: 0;
+            color: #1976d2;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        /* حقوق التصميم */
+        .designer-credit {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #d63031;
+            background: #fff59d;
+            padding: 3px 15px;
+            border-radius: 12px;
+            border: 2px dashed #f1c40f;
+            direction: rtl;
+            margin: 0 auto;
+        }
+
+        /* 2. منطقة العرض والتفاعل الرئيسي */
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0;
+            height: calc(100% - 38px);
+            position: relative;
+        }
+
+        .study-view {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .study-view img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: fill;
+        }
+
+        /* أزرار شاشة الدراسة (Study Card) */
+        .study-nav-btns {
+            position: absolute;
+            top: 2.5%;
+            left: 48%;
+            display: flex;
+            gap: 15px;
+            z-index: 20;
+        }
+
+        /* أزرار شاشة اللعبة (Game Mode) الموزعة يمين ويسار */
+        .game-nav-btns {
+            position: absolute;
+            top: 2.5%;
+            width: 84%;
+            display: flex;
+            justify-content: space-between;
+            z-index: 20;
+        }
+
+        .mode-btn {
+            border: 3px solid #90caf9;
+            background: #ffffff;
+            color: #1976d2;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 170px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #ffb300;
+            border-color: #ffa000;
+            color: #000;
+        }
+
+        .mode-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* الشفافيات */
+        .hotspot-row {
+            position: absolute;
+            left: 8.5%;
+            width: 84%;
+            height: 9.5%;
+            background: rgba(241, 196, 15, 0.25);
+            border: 2px dashed #f39c12;
+            border-radius: 6px;
+            cursor: pointer;
+            z-index: 10;
+            transition: 0.2s;
+        }
+
+        .row-1 { top: 41.5%; }
+        .row-2 { top: 52.0%; }
+        .row-3 { top: 62.5%; } 
+        .row-4 { top: 73.0%; } 
+        .row-5 { top: 83.5%; } 
+
+        .hotspot-row:hover {
+            background: rgba(46, 204, 113, 0.4);
+            border-color: #2ecc71;
+        }
+
+        /* وضع اللعبة Game Mode */
+        .game-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 750px;
+            margin-top: 45px;
+        }
+
+        /* عداد الأسئلة */
+        .question-counter {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e67e22;
+            margin-bottom: 8px;
+            background: #fff8e1;
+            padding: 4px 15px;
+            border-radius: 20px;
+            border: 2px solid #ffe082;
+        }
+
+        .question-card {
+            background: #ffffff;
+            border: 3px solid #ffe082;
+            border-radius: 20px;
+            width: 100%;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+
+        .listen-btn {
+            background: #29b6f6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 0 #0288d1;
+        }
+
+        .question-text {
+            font-size: 2rem;
+            color: #263238;
+            font-weight: bold;
+            margin: 5px 0 0 0;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .opt-btn {
+            border: none;
+            color: white;
+            padding: 15px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+        }
+
+        .opt-btn:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        .btn-green { background: #43a047; }
+        .btn-orange { background: #fb8c00; }
+        .btn-blue { background: #039be5; }
+        .btn-purple { background: #ab47bc; }
+
+        /* نافذة رسالة النهاية الملونة والجميلة */
+        .congrats-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #fff9c4, #ffe082);
+            border: 4px solid #fbc02d;
+            border-radius: 25px;
+            padding: 30px 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 100;
+            animation: bounceIn 0.5s ease;
+        }
+
+        .congrats-modal h1 {
+            color: #d32f2f;
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            text-shadow: 2px 2px #fff;
+        }
+
+        .congrats-modal p {
+            color: #1976d2;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- 1. الشريط العلوي -->
+        <header class="top-bar">
+            <div class="header-left">
+                <div class="num-circle">1</div>
+                <div class="title-text">
+                    <h2>Grammar in Action</h2>
+                    <p>Listen and practice • Verb Helpers</p>
+                </div>
+            </div>
+
+            <!-- حقوق التصميم -->
+            <div class="designer-credit">
+                تصميم الأستاذ : علي عسيري
+            </div>
+        </header>
+
+        <!-- 2. محتوى الدرس / اللعبة -->
+        <div class="content-area">
+            
+            <!-- أزرار شاشة الدراسة (Study Card) -->
+            <div class="study-nav-btns" id="studyNavBtns">
+                <button class="mode-btn active" onclick="switchMode('study')">📖 Study Card</button>
+                <button class="mode-btn" onclick="switchMode('game')">🎮 Game Mode</button>
+            </div>
+
+            <!-- أزرار شاشة اللعبة (Game Mode) -->
+            <div class="game-nav-btns" id="gameNavBtns" style="display: none;">
+                <button class="mode-btn" onclick="switchMode('study')">📖 Study Card</button>
+                <button class="mode-btn active" onclick="switchMode('game')">🎮 Game Mode</button>
+            </div>
+
+            <!-- وضع بطاقة الدرس المصورة -->
+            <div class="study-view" id="studyView">
+                <div style="position: relative; width:98%; height:98%; display: flex; justify-content: center; align-items: flex-start;">
+                    <img src="grammarinaction.png" alt="Lesson Image" style="width:100%; height:100%; object-fit:fill;">
+                    
+                    <div class="hotspot-row row-1" onclick="playSound('audio-doyou')"></div>
+                    <div class="hotspot-row row-2" onclick="playSound('audio-doeshe')"></div>
+                    <div class="hotspot-row row-3" onclick="playSound('audio-doesshe')"></div>
+                    <div class="hotspot-row row-4" onclick="playSound('audio-dowe')"></div>
+                    <div class="hotspot-row row-5" onclick="playSound('audio-dothey')"></div>
+                </div>
+            </div>
+
+            <!-- وضع اللعبة Game Mode -->
+            <div class="game-view" id="gameView">
+                <div class="question-counter" id="qCounter">السؤال 1 من 5</div>
+
+                <div class="question-card">
+                    <button class="listen-btn" onclick="playCurrentGameAudio()">🔊 إستمع للسؤال</button>
+                    <div class="question-text" id="qText">Do you play basketball?</div>
+                </div>
+
+                <div class="options-grid">
+                    <button class="opt-btn btn-green" onclick="checkGameAns(0)" id="opt0">Yes, I do.</button>
+                    <button class="opt-btn btn-orange" onclick="checkGameAns(1)" id="opt1">Yes, they do.</button>
+                    <button class="opt-btn btn-blue" onclick="checkGameAns(2)" id="opt2">Yes, he does.</button>
+                    <button class="opt-btn btn-purple" onclick="checkGameAns(3)" id="opt3">No, she doesn't.</button>
+                </div>
+            </div>
+
+            <!-- نافذة التهنئة الملونة الجميلة -->
+            <div class="congrats-modal" id="congratsModal">
+                <h1>🌟 أحسنت يا بطل 🌟</h1>
+                <p>لقد أنهيت التمرين بنجاح تام! 🏆</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- الأصوات -->
+    <audio id="audio-doyou" src="doyou.mp3"></audio>
+    <audio id="audio-doeshe" src="doeshe.mp3"></audio>
+    <audio id="audio-doesshe" src="doesshe.mp3"></audio>
+    <audio id="audio-dowe" src="dowe.mp3"></audio>
+    <audio id="audio-dothey" src="dothey.mp3"></audio>
+    <audio id="audio-good" src="good.mp3"></audio>
+    <audio id="audio-goodjob" src="goodjob.mp3"></audio>
+    <audio id="audio-alert" src="alert.mp3"></audio>
+
+    <script>
+        let currentGameIndex = 0;
+        let shuffledGameData = [];
+
+        const originalGameData = [
+            { q: "Do you play basketball?", audio: "audio-doyou", correct: "Yes, I do.", opts: ["Yes, I do.", "Yes, they do.", "Yes, he does.", "No, she doesn't."] },
+            { q: "Does he play football?", audio: "audio-doeshe", correct: "Yes, he does.", opts: ["No, I don't.", "Yes, he does.", "Yes, they do.", "No, she doesn't."] },
+            { q: "Does she swim?", audio: "audio-doesshe", correct: "No, she doesn't.", opts: ["Yes, I do.", "Yes, you do.", "No, she doesn't.", "Yes, he does."] },
+            { q: "Do we have class?", audio: "audio-dowe", correct: "Yes, you do.", opts: ["Yes, you do.", "No, they don't.", "Yes, he does.", "No, I don't."] },
+            { q: "Do they run fast?", audio: "audio-dothey", correct: "Yes, they do.", opts: ["No, she doesn't.", "Yes, I do.", "Yes, they do.", "No, he doesn't."] }
+        ];
+
+        // دالة لخلط الأسئلة عشوائياً
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function playSound(id) {
+            document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
+            const audio = document.getElementById(id);
+            if(audio) audio.play();
+        }
+
+        function switchMode(mode) {
+            const studyNav = document.getElementById('studyNavBtns');
+            const gameNav = document.getElementById('gameNavBtns');
+            document.getElementById('congratsModal').style.display = 'none';
+
+            if(mode === 'study') {
+                document.getElementById('studyView').style.display = 'flex';
+                document.getElementById('gameView').style.display = 'none';
+                studyNav.style.display = 'flex';
+                gameNav.style.display = 'none';
+            } else {
+                document.getElementById('studyView').style.display = 'none';
+                document.getElementById('gameView').style.display = 'flex';
+                studyNav.style.display = 'none';
+                gameNav.style.display = 'flex';
+                
+                // إعادة خلط الأسئلة عند الدخول لوضع اللعبة
+                shuffledGameData = shuffleArray(originalGameData);
+                currentGameIndex = 0;
+                loadGameQuestion();
+            }
+        }
+
+        function loadGameQuestion() {
+            const current = shuffledGameData[currentGameIndex];
+            document.getElementById('qCounter').textContent = `السؤال ${currentGameIndex + 1} من ${shuffledGameData.length}`;
+            document.getElementById('qText').textContent = current.q;
+            document.getElementById('opt0').textContent = current.opts[0];
+            document.getElementById('opt1').textContent = current.opts[1];
+            document.getElementById('opt2').textContent = current.opts[2];
+            document.getElementById('opt3').textContent = current.opts[3];
+            playSound(current.audio);
+        }
+
+        function playCurrentGameAudio() {
+            playSound(shuffledGameData[currentGameIndex].audio);
+        }
+
+        function checkGameAns(idx) {
+            const current = shuffledGameData[currentGameIndex];
+            document.querySelectorAll('audio').forEach(a => { a.pause(); a.currentTime = 0; });
+
+            if(current.opts[idx] === current.correct) {
+                if (currentGameIndex === shuffledGameData.length - 1) {
+                    const goodJobAudio = document.getElementById('audio-goodjob');
+                    goodJobAudio.play();
+                    goodJobAudio.onended = function() {
+                        // إظهار نافذة التهنئة الملونة بدلاً من alert التقليدي
+                        document.getElementById('congratsModal').style.display = 'block';
+                        setTimeout(() => {
+                            document.getElementById('congratsModal').style.display = 'none';
+                            currentGameIndex = 0;
+                            switchMode('study');
+                        }, 3000);
+                    };
+                } else {
+                    const goodAudio = document.getElementById('audio-good');
+                    goodAudio.play();
+                    goodAudio.onended = function() {
+                        currentGameIndex++;
+                        loadGameQuestion();
+                    };
+                }
+            } else {
+                const alertAudio = document.getElementById('audio-alert');
+                alertAudio.play();
+            }
+        }
+    </script>
+</body>
+</html>
+
+<div id="expiryOverlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:99999; justify-content:center; align-items:center;">
+    <div style="background:linear-gradient(135deg, #e74c3c, #c0392b); padding:40px; border-radius:20px; text-align:center; color:white; box-shadow:0 10px 30px rgba(0,0,0,0.7); max-width:450px; width:90%; border:4px solid #fff;">
+        <h2 style="font-size:30px; margin-bottom:15px; text-shadow:2px 2px 4px rgba(0,0,0,0.4);">رسالة تنبيه</h2>
+        <p style="font-size:20px; margin-bottom:25px; font-weight:bold;">تم تعطيل البرنامج</p>
+        <button onclick="closeApp()" style="background-color:#2ecc71; color:white; border:2px solid white; padding:10px 30px; font-size:18px; font-weight:bold; border-radius:10px; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.3); transition:0.2s;">موافق</button>
+    </div>
+</div>
+
+<script>
+    // حدد هنا تاريخ ووقت التعطيل بدقة (السنة، الشهر (من 0 إلى 11)، اليوم، الساعة، الدقيقة، الثانية)
+    // مثال هنا مضبوط ليتعطل في: 31 ديسمبر 2026، الساعة 12:00 ليلاً
+    const expiryDate = new Date(2026, 11, 31, 0, 0, 0).getTime();
+
+    function checkProgramExpiry() {
+        const now = new Date().getTime();
+        if (now >= expiryDate) {
+            // إظهار نافذة التعطيل وجعل الشاشة غير نشطة
+            document.getElementById('expiryOverlay').style.display = 'flex';
+            // منع التفاعل مع أي عنصر خلف النافذة
+            document.body.style.pointerEvents = 'none';
+            document.getElementById('expiryOverlay').style.pointerEvents = 'auto';
+        }
+    }
+
+    // دالة زر الموافق (لإغلاق أو إنهاء الصفحة)
+    function closeApp() {
+        window.close();
+        // احتياطاً في حال لم تغلُق نافذة المتصفح تلقائياً
+        document.body.innerHTML = "<h1 style='color:white; text-align:center; margin-top:20vh;'>تم إغلاق البرنامج نهائياً.</h1>";
+    }
+
+    // فحص التاريخ كل ثانية
+    setInterval(checkProgramExpiry, 1000);
+    // فحص فوري عند فتح الصفحة
+    window.onload = checkProgramExpiry;
+</script>
+
